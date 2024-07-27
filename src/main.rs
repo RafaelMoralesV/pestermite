@@ -10,6 +10,8 @@ fn main() {
         window_level: WindowLevel::AlwaysOnTop,
         resolution: WindowResolution::new(400.0, 250.0),
         resizable: false,
+        // Por ahora, supongo.
+        position: WindowPosition::new(IVec2 { x: 1300, y: 400 }),
         ..default()
     };
 
@@ -44,11 +46,7 @@ fn animate_sprite(
     for (indices, mut timer, mut atlas) in &mut query {
         timer.tick(time.delta());
         if timer.just_finished() {
-            atlas.index = if atlas.index == indices.last {
-                indices.first
-            } else {
-                atlas.index + 1
-            };
+            atlas.index = (atlas.index + 1) % indices.last;
         }
     }
 }
@@ -62,7 +60,7 @@ fn setup(
     let layout = TextureAtlasLayout::from_grid(UVec2 { x: 50, y: 50 }, 8, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     // Use only the subset of sprites in the sheet that make up the run animation
-    let animation_indices = AnimationIndices { first: 1, last: 6 };
+    let animation_indices = AnimationIndices { first: 0, last: 8 };
     commands.spawn(Camera2dBundle::default());
     commands.spawn((
         SpriteBundle {
@@ -75,6 +73,6 @@ fn setup(
             index: animation_indices.first,
         },
         animation_indices,
-        AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
+        AnimationTimer(Timer::from_seconds(1.0 / 14.0, TimerMode::Repeating)),
     ));
 }
